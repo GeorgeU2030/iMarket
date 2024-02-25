@@ -17,7 +17,7 @@ export default function Header() {
       </View>
     </View>
 
-    <View className="flex flex-row items-center gap-2 bg-white p-3 px-5 rounded-full mt-5 border-2 border-[#3B82BF]">
+    <View className="flex flex-row items-center gap-2 bg-blue-50 p-3 px-5 rounded-full mt-5 border-2 border-[#3B82BF]">
         <Ionicons name="search" size={24} color="#3B82BF" />
         <TextInput placeholder='Search' style={[styles.text, {flex: 1, marginLeft: 2, fontSize: 18, fontWeight: 'semibold'}]}
         onChangeText={(e)=>{
