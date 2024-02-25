@@ -26,9 +26,7 @@ export default function App() {
           </NavigationContainer>
       </SignedIn>
       <SignedOut>
-      <NavigationContainer>
-            <TabNavigation />
-          </NavigationContainer>
+      <LoginScreen />
       </SignedOut>
       <StatusBar style="auto" />
     </View>
