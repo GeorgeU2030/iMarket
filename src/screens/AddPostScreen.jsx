@@ -1,14 +1,16 @@
-import { View, Text, TextInput,StyleSheet,TouchableOpacity} from 'react-native'
+import { View, Text, TextInput,StyleSheet,TouchableOpacity, Image, ToastAndroid} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { app } from '../../Firebaseconfig';
 import { getFirestore, getDocs, collection } from 'firebase/firestore';
 import { Formik } from 'formik';
 import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function AddPostScreen() {
 
   const db = getFirestore(app);
   const [categoryList, setCategoryList] = useState([]);
+  const [image, setImage] = useState(null);
 
   useEffect(() => {
     getCategoryList();
@@ -26,18 +28,65 @@ export default function AddPostScreen() {
         console.log(e);
       }
   }
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+  const onSubmitMethod = (values) => {
+    values.image = image;
+    console.log(values);
+  }
   return (
     <View className="p-10">
       <Text className="text-2xl text-center font-semibold" style={styles.texttwo}>Add New Post</Text>
       <Text className="text-center" style={styles.textsubtitle}>Create a New Product and Start Selling!</Text>
       <Formik
-      initialValues={{title:'', description:'', category: '',address:'', price: ''}}
-      onSubmit={(values)=>{console.log(values)}}
+      initialValues={{title:'', description:'', category: '',address:'', price: '',image:''}}
+      onSubmit={(values)=>{onSubmitMethod(values)}}
+      validate={(values)=>{
+        const errors = {};
+        if (!values.image){
+          errors.image = 'Image is Required';
+          ToastAndroid.show('Image is Required', ToastAndroid.SHORT);
+        }
+        else if(!values.title){
+          errors.title = 'Title is Required';
+          ToastAndroid.show('Title is Required', ToastAndroid.SHORT);
+        }
+        else if(!values.price){
+          errors.title = 'Price is Required';
+          ToastAndroid.show('Price is Required', ToastAndroid.SHORT);
+        }
+        else if(!values.address){
+          errors.title = 'Address is Required';
+          ToastAndroid.show('Address is Required', ToastAndroid.SHORT);
+        }
+        return errors;
+      }}
       >
-        {({handleChange, handleBlur, handleSubmit,values,setFieldValue})=>{
+        {({handleChange, handleBlur, handleSubmit,values,setFieldValue,errors})=>{
 
           return (
           <View style={{marginTop:3}}>
+
+            <TouchableOpacity onPress={pickImage}>
+            {image ?
+            <Image source={{uri: image}} style={styles.imagestyle} />
+            :<Image source={require('../../assets/images/placeholder.png')}
+            style={styles.imagestyle}
+            />
+            }
+            
+            </TouchableOpacity>
             <TextInput style={styles.input}
             placeholder='Title'
             value={values.title}
@@ -112,6 +161,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     marginTop:10,
+  },
+  imagestyle:{ 
+    width: 150, 
+    height: 150, 
+    alignSelf:'center', 
+    borderRadius: 15
   }
   }
 )
