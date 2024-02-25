@@ -1,13 +1,19 @@
-import { View, Text, TextInput,StyleSheet,TouchableOpacity, Image, ToastAndroid} from 'react-native'
+import { View, Text, TextInput,StyleSheet,TouchableOpacity, Image, ToastAndroid, ActivityIndicator} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { app } from '../../Firebaseconfig';
-import { getFirestore, getDocs, collection } from 'firebase/firestore';
+import { getFirestore, getDocs, collection, addDoc } from 'firebase/firestore';
 import { Formik } from 'formik';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { useUser } from '@clerk/clerk-expo';
 
 export default function AddPostScreen() {
 
+  const [validation, setValidation] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const {user} = useUser();
+  const storage = getStorage();
   const db = getFirestore(app);
   const [categoryList, setCategoryList] = useState([]);
   const [image, setImage] = useState(null);
@@ -41,37 +47,62 @@ export default function AddPostScreen() {
       setImage(result.assets[0].uri);
     }
   };
-  const onSubmitMethod = (values) => {
-    values.image = image;
-    console.log(values);
+  const onSubmitMethod = async (values) => {
+
+    setLoading(true);
+    // state of button - verify the fields
+    const resp = await fetch(image);
+    const blob = await resp.blob();
+    const storageRef = ref(storage, 'folderimages/'+Date.now()+".jpg");
+
+    uploadBytes(storageRef,blob).then((snapshot) => {
+      console.log('Uploaded a blob or file!');
+    }).then((resp)=>{
+      getDownloadURL(storageRef).then(async(url)=>{
+        values.image = url;
+        values.userName = user.fullName;
+        values.userEmail = user.primaryEmailAddress.emailAddress;
+        values.userImage = user.imageUrl;
+        const docRef = await addDoc(collection(db, "Product"), values);
+        if (docRef.id) {
+          setLoading(false);
+          ToastAndroid.show('Product Added Successfully!', ToastAndroid.SHORT);
+        }
+      })
+    })
   }
+
+  const validatefields = (values)=>{
+    if(values.title === ''){
+      return false;
+    }
+    if(values.description === ''){
+      return false;
+    }
+    if(values.price === ''){
+      return false;
+    }
+    if(values.address === ''){
+      return false;
+    }
+    if(values.category === ''){
+      return false;
+    }
+    if(image === ''){
+      return false;
+    }
+    setValidation(false)
+    return true;
+  }
+
   return (
     <View className="p-10">
       <Text className="text-2xl text-center font-semibold" style={styles.texttwo}>Add New Post</Text>
       <Text className="text-center" style={styles.textsubtitle}>Create a New Product and Start Selling!</Text>
       <Formik
-      initialValues={{title:'', description:'', category: '',address:'', price: '',image:''}}
+      initialValues={{title:'', description:'', category: '',address:'', price: '',image:'',userName:'',userEmail:'',userImage:''}}
       onSubmit={(values)=>{onSubmitMethod(values)}}
-      validate={(values)=>{
-        const errors = {};
-        if (!values.image){
-          errors.image = 'Image is Required';
-          ToastAndroid.show('Image is Required', ToastAndroid.SHORT);
-        }
-        else if(!values.title){
-          errors.title = 'Title is Required';
-          ToastAndroid.show('Title is Required', ToastAndroid.SHORT);
-        }
-        else if(!values.price){
-          errors.title = 'Price is Required';
-          ToastAndroid.show('Price is Required', ToastAndroid.SHORT);
-        }
-        else if(!values.address){
-          errors.title = 'Address is Required';
-          ToastAndroid.show('Address is Required', ToastAndroid.SHORT);
-        }
-        return errors;
-      }}
+      validate={validatefields}
       >
         {({handleChange, handleBlur, handleSubmit,values,setFieldValue,errors})=>{
 
@@ -85,7 +116,6 @@ export default function AddPostScreen() {
             style={styles.imagestyle}
             />
             }
-            
             </TouchableOpacity>
             <TextInput style={styles.input}
             placeholder='Title'
@@ -128,8 +158,14 @@ export default function AddPostScreen() {
             </Picker>
             </View>
 
-            <TouchableOpacity onPress={handleSubmit} className='bg-[#42ad99] p-3 rounded-full mt-5'>
+            <TouchableOpacity onPress={handleSubmit} className='p-3 rounded-full mt-5'
+            style={{backgroundColor:loading ? '#0B6D5B' : (validation ? '#3B82BF' : '#42ad99')}}
+            disabled={loading || validation}
+            > 
+              {loading ? 
+              <ActivityIndicator size="small" color="#fff" />:
               <Text style={styles.text} className='text-lg text-center text-white'>Submit</Text>
+              }
             </TouchableOpacity>
           </View>
           )
