@@ -4,7 +4,7 @@ import React, {useState,useEffect} from 'react'
 import Header from '../components/Header'
 import Slider from '../components/Slider'
 import Categories from '../components/Categories'
-import { getDocs,collection, getFirestore,orderBy,limit} from 'firebase/firestore'
+import { getDocs,collection, getFirestore,orderBy,limit, onSnapshot} from 'firebase/firestore'
 import { app } from '../../Firebaseconfig'
 import Latest from '../components/Latest'
 
@@ -15,7 +15,10 @@ export default function HomeScreen() {
 
   useEffect(() => {
     getCategoryList();
-    getLatestItemList();
+    const unsubscribe = onSnapshot(collection(db, 'Product'), (snapshot) => {
+      getLatestItemList();
+    });
+    return () => unsubscribe();
   }, [])
 
   const getCategoryList = async () => {

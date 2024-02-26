@@ -47,6 +47,17 @@ export default function AddPostScreen() {
       setImage(result.assets[0].uri);
     }
   };
+
+  const resetForm = (values) => {
+    values.title = '';
+    values.description = '';
+    values.price = '';
+    values.address = '';
+    values.category = '';
+    values.image = '';
+    setImage(null);
+  }
+
   const onSubmitMethod = async (values) => {
 
     setLoading(true);
@@ -67,6 +78,7 @@ export default function AddPostScreen() {
         if (docRef.id) {
           setLoading(false);
           ToastAndroid.show('Product Added Successfully!', ToastAndroid.SHORT);
+          resetForm(values);
         }
       })
     })

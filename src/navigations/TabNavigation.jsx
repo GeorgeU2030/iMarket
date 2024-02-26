@@ -9,6 +9,7 @@ import { Entypo } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import HomeStackNav from './HomeStackNav';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,7 +23,7 @@ export default function TabNavigation() {
           }
         }}
         >
-          <Tab.Screen name='home' component={HomeScreen} 
+          <Tab.Screen name='homenav' component={HomeStackNav} 
           options={{
             tabBarLabel:({color})=>{
               return(
