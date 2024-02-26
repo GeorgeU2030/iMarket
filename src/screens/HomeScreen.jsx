@@ -51,7 +51,7 @@ export default function HomeScreen() {
      <Header />
      <Slider />
      <Categories categoryList={categoryList}/>
-     <Latest latestItem={latestItem}/>
+     <Latest latestItem={latestItem} heading={'Latest Items'}/>
     </ScrollView>
   )
 }
