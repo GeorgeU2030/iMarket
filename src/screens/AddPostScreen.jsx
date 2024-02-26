@@ -1,4 +1,4 @@
-import { View, Text, TextInput,StyleSheet,TouchableOpacity, Image, ToastAndroid, ActivityIndicator} from 'react-native'
+import { View, Text, TextInput,StyleSheet,TouchableOpacity, Image, ToastAndroid, ActivityIndicator, ScrollView, KeyboardAvoidingView} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { app } from '../../Firebaseconfig';
 import { getFirestore, getDocs, collection, addDoc } from 'firebase/firestore';
@@ -96,11 +96,12 @@ export default function AddPostScreen() {
   }
 
   return (
-    <View className="p-10">
+    <KeyboardAvoidingView>
+    <ScrollView className="p-10">
       <Text className="text-2xl text-center font-semibold" style={styles.texttwo}>Add New Post</Text>
       <Text className="text-center" style={styles.textsubtitle}>Create a New Product and Start Selling!</Text>
       <Formik
-      initialValues={{title:'', description:'', category: '',address:'', price: '',image:'',userName:'',userEmail:'',userImage:''}}
+      initialValues={{title:'', description:'', category: '',address:'', price: '',image:'',userName:'',userEmail:'',userImage:'',createdAt:Date.now()}}
       onSubmit={(values)=>{onSubmitMethod(values)}}
       validate={validatefields}
       >
@@ -171,7 +172,8 @@ export default function AddPostScreen() {
           )
         }}
       </Formik>
-    </View>
+    </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 

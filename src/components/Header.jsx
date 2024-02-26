@@ -7,7 +7,7 @@ export default function Header() {
     const {user} = useUser();
   return (
     <View>
-    <View className="flex flex-row items-center gap-4">
+    <View className="flex flex-row items-center gap-4 ">
       <Image source={{uri:user?.imageUrl}} 
       className="w-12 h-12 rounded-full"
       />
@@ -17,7 +17,7 @@ export default function Header() {
       </View>
     </View>
 
-    <View className="flex flex-row items-center gap-2 bg-blue-50 p-3 px-5 rounded-full mt-5 border-2 border-[#3B82BF]">
+    <View className="flex flex-row items-center gap-2 bg-blue-50 p-3 px-5 mx-1 rounded-full mt-5 border-2 border-[#3B82BF]">
         <Ionicons name="search" size={24} color="#3B82BF" />
         <TextInput placeholder='Search' style={[styles.text, {flex: 1, marginLeft: 2, fontSize: 18, fontWeight: 'semibold'}]}
         onChangeText={(e)=>{
